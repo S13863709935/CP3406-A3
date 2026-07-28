@@ -45,11 +45,6 @@ android {
     testOptions {
         unitTests.all {
             it.maxHeapSize = "256m"
-            it.jvmArgs(
-                "-Djava.io.tmpdir=${
-                    rootProject.layout.buildDirectory.dir("tmp").get().asFile.absolutePath
-                }"
-            )
         }
     }
     packaging {
