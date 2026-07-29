@@ -12,6 +12,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.wordquest.data.settings.QuizMode
+import com.example.wordquest.data.settings.SettingsManager
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,7 +60,8 @@ fun SettingsScreen(
                     Slider(
                         value = uiState.dailyGoal.toFloat(),
                         onValueChange = { viewModel.updateDailyGoal(it.toInt()) },
-                        valueRange = 5f..50f,
+                        valueRange = SettingsManager.MIN_DAILY_GOAL.toFloat()..
+                            SettingsManager.MAX_DAILY_GOAL.toFloat(),
                         steps = 8,
                         modifier = Modifier.width(150.dp)
                     )
@@ -69,18 +72,26 @@ fun SettingsScreen(
 
             ListItem(
                 headlineContent = { Text("Quiz Mode") },
-                supportingContent = { Text(if (uiState.quizMode == "FLASHCARD") "Flashcard" else "Multiple Choice") },
+                supportingContent = {
+                    Text(
+                        if (uiState.quizMode == QuizMode.FLASHCARD) {
+                            "Flashcard"
+                        } else {
+                            "Multiple Choice"
+                        }
+                    )
+                },
                 trailingContent = {
                     Row {
                         FilterChip(
-                            selected = uiState.quizMode == "FLASHCARD",
-                            onClick = { viewModel.updateQuizMode("FLASHCARD") },
+                            selected = uiState.quizMode == QuizMode.FLASHCARD,
+                            onClick = { viewModel.updateQuizMode(QuizMode.FLASHCARD) },
                             label = { Text("Flashcard") }
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         FilterChip(
-                            selected = uiState.quizMode == "MULTIPLE_CHOICE",
-                            onClick = { viewModel.updateQuizMode("MULTIPLE_CHOICE") },
+                            selected = uiState.quizMode == QuizMode.MULTIPLE_CHOICE,
+                            onClick = { viewModel.updateQuizMode(QuizMode.MULTIPLE_CHOICE) },
                             label = { Text("Quiz") }
                         )
                     }

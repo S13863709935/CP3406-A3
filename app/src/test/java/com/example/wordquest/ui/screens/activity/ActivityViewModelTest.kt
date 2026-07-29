@@ -2,6 +2,7 @@ package com.example.wordquest.ui.screens.activity
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.example.wordquest.data.repository.WordRepository
+import com.example.wordquest.data.settings.QuizMode
 import com.example.wordquest.data.settings.SettingsManager
 import com.example.wordquest.util.MainDispatcherRule
 import io.mockk.coEvery
@@ -40,7 +41,7 @@ class ActivityViewModelTest {
         // Given
         val expectedGoal = 5
         every { settingsManager.dailyGoal } returns flowOf(expectedGoal)
-        every { settingsManager.quizMode } returns flowOf("FLASHCARD")
+        every { settingsManager.quizMode } returns flowOf(QuizMode.FLASHCARD)
         coEvery { repository.getWordDefinition(any()) } returns Result.success(emptyList())
 
         // When
@@ -56,7 +57,7 @@ class ActivityViewModelTest {
         // Given
         val goal = 10
         every { settingsManager.dailyGoal } returns flowOf(goal)
-        every { settingsManager.quizMode } returns flowOf("FLASHCARD")
+        every { settingsManager.quizMode } returns flowOf(QuizMode.FLASHCARD)
         coEvery { repository.getWordDefinition(any()) } returns Result.success(emptyList())
 
         viewModel = ActivityViewModel(repository, settingsManager)

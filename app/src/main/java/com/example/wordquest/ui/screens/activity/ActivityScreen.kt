@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.wordquest.data.settings.QuizMode
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -69,7 +70,7 @@ fun ActivityScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        if (uiState.quizMode == "FLASHCARD") {
+                        if (uiState.quizMode == QuizMode.FLASHCARD) {
                             Text(
                                 text = word.word,
                                 fontSize = 36.sp,
@@ -90,11 +91,11 @@ fun ActivityScreen(
 
                         Spacer(modifier = Modifier.height(24.dp))
 
-                        if (uiState.quizMode == "FLASHCARD" && uiState.isRevealed) {
+                        if (uiState.quizMode == QuizMode.FLASHCARD && uiState.isRevealed) {
                             FlashcardMeaning(word)
                             Spacer(modifier = Modifier.height(32.dp))
                             FlashcardActions(viewModel)
-                        } else if (uiState.quizMode == "FLASHCARD") {
+                        } else if (uiState.quizMode == QuizMode.FLASHCARD) {
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -105,7 +106,7 @@ fun ActivityScreen(
                                     Text("Reveal Meaning")
                                 }
                             }
-                        } else if (uiState.quizMode == "MULTIPLE_CHOICE") {
+                        } else if (uiState.quizMode == QuizMode.MULTIPLE_CHOICE) {
                             MultipleChoiceQuiz(word, uiState, viewModel)
                         }
 

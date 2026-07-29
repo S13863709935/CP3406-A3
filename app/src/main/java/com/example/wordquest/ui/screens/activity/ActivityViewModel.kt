@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.wordquest.data.api.WordResponse
 import com.example.wordquest.data.local.UserStatEntity
 import com.example.wordquest.data.repository.WordRepository
+import com.example.wordquest.data.settings.QuizMode
 import com.example.wordquest.data.settings.SettingsManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.first
@@ -25,7 +26,7 @@ data class ActivityUiState(
     val totalQuestions: Int = 0,
     val maxQuestions: Int = 10,
     val quizFinished: Boolean = false,
-    val quizMode: String = "FLASHCARD",
+    val quizMode: QuizMode = QuizMode.FLASHCARD,
     val options: List<String> = emptyList(),
     val selectedOption: String? = null,
     val isAnswerCorrect: Boolean? = null
@@ -92,7 +93,7 @@ class ActivityViewModel @Inject constructor(
         viewModelScope.launch {
             repository.getWordDefinition(wordsToLearn[currentIndex]).onSuccess {
                 val wordResponse = it.firstOrNull()
-                val options = if (uiState.quizMode == "MULTIPLE_CHOICE" && wordResponse != null) {
+                val options = if (uiState.quizMode == QuizMode.MULTIPLE_CHOICE && wordResponse != null) {
                     generateOptions(wordResponse.word)
                 } else {
                     emptyList()

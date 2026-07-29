@@ -2,6 +2,7 @@ package com.example.wordquest.ui.screens.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.wordquest.data.settings.QuizMode
 import com.example.wordquest.data.settings.SettingsManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -15,7 +16,7 @@ data class SettingsUiState(
     val dailyGoal: Int = 10,
     val isDarkMode: Boolean = false,
     val notificationsEnabled: Boolean = true,
-    val quizMode: String = "FLASHCARD"
+    val quizMode: QuizMode = QuizMode.FLASHCARD
 )
 
 @HiltViewModel
@@ -53,7 +54,7 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun updateQuizMode(mode: String) {
+    fun updateQuizMode(mode: QuizMode) {
         viewModelScope.launch {
             settingsManager.setQuizMode(mode)
         }

@@ -18,48 +18,57 @@ private val Context.dataStore by preferencesDataStore(name = "settings")
 class SettingsManager @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
-    private val DARK_MODE_KEY = booleanPreferencesKey("dark_mode")
-    private val DAILY_GOAL_KEY = intPreferencesKey("daily_goal")
-    private val QUIZ_MODE_KEY = stringPreferencesKey("quiz_mode")
-    private val NOTIFICATIONS_ENABLED_KEY = booleanPreferencesKey("notifications_enabled")
-
     val isDarkMode: Flow<Boolean> = context.dataStore.data.map { preferences ->
-        preferences[DARK_MODE_KEY] ?: false
+        preferences[Keys.DARK_MODE] ?: false
     }
 
     val dailyGoal: Flow<Int> = context.dataStore.data.map { preferences ->
-        preferences[DAILY_GOAL_KEY] ?: 10
+        (preferences[Keys.DAILY_GOAL] ?: DEFAULT_DAILY_GOAL)
+            .coerceIn(MIN_DAILY_GOAL, MAX_DAILY_GOAL)
     }
 
-    val quizMode: Flow<String> = context.dataStore.data.map { preferences ->
-        preferences[QUIZ_MODE_KEY] ?: "FLASHCARD"
+    val quizMode: Flow<QuizMode> = context.dataStore.data.map { preferences ->
+        QuizMode.fromStoredValue(preferences[Keys.QUIZ_MODE])
     }
 
     val notificationsEnabled: Flow<Boolean> = context.dataStore.data.map { preferences ->
-        preferences[NOTIFICATIONS_ENABLED_KEY] ?: true
+        preferences[Keys.NOTIFICATIONS_ENABLED] ?: true
     }
 
     suspend fun setDarkMode(enabled: Boolean) {
         context.dataStore.edit { preferences ->
-            preferences[DARK_MODE_KEY] = enabled
+            preferences[Keys.DARK_MODE] = enabled
         }
     }
 
     suspend fun setDailyGoal(goal: Int) {
         context.dataStore.edit { preferences ->
-            preferences[DAILY_GOAL_KEY] = goal
+            preferences[Keys.DAILY_GOAL] = goal.coerceIn(MIN_DAILY_GOAL, MAX_DAILY_GOAL)
         }
     }
 
-    suspend fun setQuizMode(mode: String) {
+    suspend fun setQuizMode(mode: QuizMode) {
         context.dataStore.edit { preferences ->
-            preferences[QUIZ_MODE_KEY] = mode
+            preferences[Keys.QUIZ_MODE] = mode.name
         }
     }
 
     suspend fun setNotificationsEnabled(enabled: Boolean) {
         context.dataStore.edit { preferences ->
-            preferences[NOTIFICATIONS_ENABLED_KEY] = enabled
+            preferences[Keys.NOTIFICATIONS_ENABLED] = enabled
         }
+    }
+
+    private object Keys {
+        val DARK_MODE = booleanPreferencesKey("dark_mode")
+        val DAILY_GOAL = intPreferencesKey("daily_goal")
+        val QUIZ_MODE = stringPreferencesKey("quiz_mode")
+        val NOTIFICATIONS_ENABLED = booleanPreferencesKey("notifications_enabled")
+    }
+
+    companion object {
+        const val DEFAULT_DAILY_GOAL = 10
+        const val MIN_DAILY_GOAL = 5
+        const val MAX_DAILY_GOAL = 50
     }
 }
