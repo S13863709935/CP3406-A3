@@ -5,18 +5,18 @@ import retrofit2.http.Path
 
 data class WordResponse(
     val word: String,
-    val meanings: List<Meaning>,
+    val meanings: List<Meaning> = emptyList(),
     val phonetic: String? = null
 )
 
 data class Meaning(
-    val partOfSpeech: String,
-    val definitions: List<Definition>
+    val partOfSpeech: String = "",
+    val definitions: List<Definition> = emptyList()
 )
 
 data class Definition(
     val definition: String,
-    val example: String?
+    val example: String? = null
 )
 
 interface DictionaryApiService {

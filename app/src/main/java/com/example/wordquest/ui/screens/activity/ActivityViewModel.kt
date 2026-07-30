@@ -91,9 +91,8 @@ class ActivityViewModel @Inject constructor(
             isAnswerCorrect = null
         )
         viewModelScope.launch {
-            repository.getWordDefinition(wordsToLearn[currentIndex]).onSuccess {
-                val wordResponse = it.firstOrNull()
-                val options = if (uiState.quizMode == QuizMode.MULTIPLE_CHOICE && wordResponse != null) {
+            repository.getWordDefinition(wordsToLearn[currentIndex]).onSuccess { wordResponse ->
+                val options = if (uiState.quizMode == QuizMode.MULTIPLE_CHOICE) {
                     generateOptions(wordResponse.word)
                 } else {
                     emptyList()

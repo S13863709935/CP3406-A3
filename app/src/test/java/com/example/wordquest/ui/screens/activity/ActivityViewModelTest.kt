@@ -1,6 +1,7 @@
 package com.example.wordquest.ui.screens.activity
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.example.wordquest.data.api.WordResponse
 import com.example.wordquest.data.repository.WordRepository
 import com.example.wordquest.data.settings.QuizMode
 import com.example.wordquest.data.settings.SettingsManager
@@ -42,7 +43,9 @@ class ActivityViewModelTest {
         val expectedGoal = 5
         every { settingsManager.dailyGoal } returns flowOf(expectedGoal)
         every { settingsManager.quizMode } returns flowOf(QuizMode.FLASHCARD)
-        coEvery { repository.getWordDefinition(any()) } returns Result.success(emptyList())
+        coEvery { repository.getWordDefinition(any()) } returns Result.success(
+            WordResponse(word = "test")
+        )
 
         // When
         viewModel = ActivityViewModel(repository, settingsManager)
@@ -58,7 +61,9 @@ class ActivityViewModelTest {
         val goal = 10
         every { settingsManager.dailyGoal } returns flowOf(goal)
         every { settingsManager.quizMode } returns flowOf(QuizMode.FLASHCARD)
-        coEvery { repository.getWordDefinition(any()) } returns Result.success(emptyList())
+        coEvery { repository.getWordDefinition(any()) } returns Result.success(
+            WordResponse(word = "test")
+        )
 
         viewModel = ActivityViewModel(repository, settingsManager)
         advanceUntilIdle()
