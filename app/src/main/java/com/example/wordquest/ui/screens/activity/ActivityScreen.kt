@@ -48,9 +48,19 @@ fun ActivityScreen(
                 }
                 uiState.error != null -> {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(text = "Error: ${uiState.error}", color = MaterialTheme.colorScheme.error)
-                        Button(onClick = { viewModel.loadNextWord() }) {
-                            Text("Retry")
+                        Text(
+                            text = uiState.error,
+                            color = MaterialTheme.colorScheme.error,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            Button(onClick = viewModel::loadNextWord) {
+                                Text("Retry")
+                            }
+                            OutlinedButton(onClick = viewModel::skipCurrentWord) {
+                                Text("Skip Word")
+                            }
                         }
                     }
                 }
@@ -59,8 +69,11 @@ fun ActivityScreen(
                         Text(text = "Quiz Finished!", fontSize = 24.sp, fontWeight = FontWeight.Bold)
                         Text(text = "Your Score: ${uiState.score}/${uiState.totalQuestions}", fontSize = 18.sp)
                         Spacer(modifier = Modifier.height(16.dp))
-                        Button(onClick = { navController.popBackStack() }) {
-                            Text("Go Back")
+                        Button(onClick = viewModel::startNewSession) {
+                            Text("Try Again")
+                        }
+                        TextButton(onClick = { navController.popBackStack() }) {
+                            Text("Back to Home")
                         }
                     }
                 }

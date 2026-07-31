@@ -11,10 +11,12 @@ import com.example.wordquest.data.repository.WordRepository
 import com.example.wordquest.data.settings.QuizMode
 import com.example.wordquest.data.settings.SettingsManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 data class ActivityUiState(
@@ -64,36 +66,54 @@ class ActivityViewModel @Inject constructor(
     )
     private var wordsToLearn = emptyList<String>()
     private var currentIndex = 0
+    private var sessionJob: Job? = null
+    private var lookupJob: Job? = null
 
     init {
-        viewModelScope.launch {
+        startNewSession()
+    }
+
+    fun startNewSession() {
+        sessionJob?.cancel()
+        lookupJob?.cancel()
+        uiState = ActivityUiState(isLoading = true)
+        sessionJob = viewModelScope.launch {
             val goal = settingsManager.dailyGoal.first()
             val mode = settingsManager.quizMode.first()
             wordsToLearn = wordPool.shuffled().take(goal)
-            uiState = uiState.copy(maxQuestions = wordsToLearn.size, quizMode = mode)
+            currentIndex = 0
+            uiState = ActivityUiState(
+                maxQuestions = wordsToLearn.size,
+                quizMode = mode
+            )
             loadNextWord()
         }
     }
 
     fun loadNextWord() {
-        if (wordsToLearn.isEmpty()) return // Wait for init
+        if (wordsToLearn.isEmpty() || uiState.isLoading || uiState.quizFinished) {
+            return
+        }
 
         if (currentIndex >= wordsToLearn.size) {
             finishQuiz()
             return
         }
 
+        val requestedWord = wordsToLearn[currentIndex]
         uiState = uiState.copy(
             isLoading = true,
+            currentWord = null,
             isRevealed = false,
             error = null,
             selectedOption = null,
             isAnswerCorrect = null
         )
-        viewModelScope.launch {
-            repository.getWordDefinition(wordsToLearn[currentIndex]).onSuccess { wordResponse ->
+        lookupJob = viewModelScope.launch {
+            repository.getWordDefinition(requestedWord).onSuccess { response ->
+                val wordResponse = response.copy(word = requestedWord)
                 val options = if (uiState.quizMode == QuizMode.MULTIPLE_CHOICE) {
-                    generateOptions(wordResponse.word)
+                    generateOptions(requestedWord)
                 } else {
                     emptyList()
                 }
@@ -105,19 +125,28 @@ class ActivityViewModel @Inject constructor(
                     options = options
                 )
                 currentIndex++
-            }.onFailure {
-                uiState = uiState.copy(isLoading = false, error = it.message)
+            }.onFailure { error ->
+                uiState = uiState.copy(
+                    isLoading = false,
+                    error = error.toUserMessage()
+                )
             }
         }
     }
 
     private fun generateOptions(correctWord: String): List<String> {
-        return (wordPool.filter { it != correctWord }.shuffled().take(3) + correctWord).shuffled()
+        val distractors = wordPool
+            .filterNot { it.equals(correctWord, ignoreCase = true) }
+            .shuffled()
+            .take(3)
+        return (distractors + correctWord).shuffled()
     }
 
     fun selectOption(option: String) {
-        if (uiState.selectedOption != null) return
-        val isCorrect = option == uiState.currentWord?.word
+        if (uiState.isLoading || uiState.selectedOption != null) {
+            return
+        }
+        val isCorrect = option.equals(uiState.currentWord?.word, ignoreCase = true)
         uiState = uiState.copy(
             selectedOption = option,
             isAnswerCorrect = isCorrect,
@@ -126,18 +155,37 @@ class ActivityViewModel @Inject constructor(
     }
 
     fun revealMeaning() {
-        uiState = uiState.copy(isRevealed = true)
+        if (!uiState.isLoading && uiState.currentWord != null) {
+            uiState = uiState.copy(isRevealed = true)
+        }
     }
 
     fun submitAnswer(isCorrect: Boolean) {
+        if (uiState.isLoading || uiState.quizFinished || uiState.currentWord == null) {
+            return
+        }
         if (isCorrect) {
             uiState = uiState.copy(score = uiState.score + 1)
         }
         loadNextWord()
     }
 
+    fun skipCurrentWord() {
+        if (uiState.isLoading || uiState.error == null) {
+            return
+        }
+        currentIndex++
+        loadNextWord()
+    }
+
     private fun finishQuiz() {
+        if (uiState.quizFinished) {
+            return
+        }
         uiState = uiState.copy(quizFinished = true)
+        if (uiState.totalQuestions == 0) {
+            return
+        }
         viewModelScope.launch {
             val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
             val date = dateFormat.format(Date())
@@ -148,6 +196,13 @@ class ActivityViewModel @Inject constructor(
                     totalQuestions = uiState.totalQuestions
                 )
             )
+        }
+    }
+
+    private fun Throwable.toUserMessage(): String {
+        return when (this) {
+            is NoSuchElementException -> "No definition was found for this word."
+            else -> "Unable to load this word. Check your connection and try again."
         }
     }
 }
