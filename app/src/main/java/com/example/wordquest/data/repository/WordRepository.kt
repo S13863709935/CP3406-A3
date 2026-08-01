@@ -37,4 +37,8 @@ class WordRepository @Inject constructor(
     suspend fun insertStat(stat: UserStatEntity) {
         wordDao.insertStat(stat)
     }
+
+    suspend fun clearStats() {
+        wordDao.deleteAllStats()
+    }
 }

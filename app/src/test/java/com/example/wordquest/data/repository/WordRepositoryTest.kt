@@ -59,4 +59,11 @@ class WordRepositoryTest {
 
         assertTrue(cancellationWasThrown)
     }
+
+    @Test
+    fun `clear stats removes all stored history`() = runTest {
+        repository.clearStats()
+
+        coVerify(exactly = 1) { wordDao.deleteAllStats() }
+    }
 }
