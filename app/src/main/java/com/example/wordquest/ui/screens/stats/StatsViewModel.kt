@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.wordquest.data.local.UserStatEntity
 import com.example.wordquest.data.repository.WordRepository
 import com.example.wordquest.data.settings.SettingsManager
+import com.example.wordquest.ui.model.ProgressSummary
+import com.example.wordquest.ui.model.ProgressSummaryCalculator
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -17,7 +19,7 @@ import javax.inject.Inject
 data class StatsUiState(
     val dailyGoal: Int = 10,
     val statsList: List<UserStatEntity> = emptyList(),
-    val summary: StatsSummary = StatsSummary()
+    val summary: ProgressSummary = ProgressSummary()
 )
 
 @HiltViewModel
@@ -33,7 +35,7 @@ class StatsViewModel @Inject constructor(
         StatsUiState(
             dailyGoal = goal,
             statsList = stats,
-            summary = StatsSummaryCalculator.calculate(
+            summary = ProgressSummaryCalculator.calculate(
                 stats = stats,
                 today = LocalDate.now().toString()
             )

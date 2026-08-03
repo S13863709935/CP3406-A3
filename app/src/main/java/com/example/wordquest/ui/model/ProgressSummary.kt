@@ -1,9 +1,9 @@
-package com.example.wordquest.ui.screens.stats
+package com.example.wordquest.ui.model
 
 import com.example.wordquest.data.local.UserStatEntity
 import kotlin.math.roundToInt
 
-data class StatsSummary(
+data class ProgressSummary(
     val totalQuizzes: Int = 0,
     val totalQuestions: Int = 0,
     val correctAnswers: Int = 0,
@@ -13,11 +13,11 @@ data class StatsSummary(
     val recentAccuracies: List<Int> = emptyList()
 )
 
-object StatsSummaryCalculator {
+object ProgressSummaryCalculator {
     fun calculate(
         stats: List<UserStatEntity>,
         today: String
-    ): StatsSummary {
+    ): ProgressSummary {
         val totalQuestions = stats.sumOf { it.validQuestionCount }
         val correctAnswers = stats.sumOf { it.validScore }
         val averageAccuracy = if (totalQuestions == 0) {
@@ -26,7 +26,7 @@ object StatsSummaryCalculator {
             (correctAnswers.toDouble() / totalQuestions * 100).roundToInt()
         }
 
-        return StatsSummary(
+        return ProgressSummary(
             totalQuizzes = stats.size,
             totalQuestions = totalQuestions,
             correctAnswers = correctAnswers,

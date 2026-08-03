@@ -1,19 +1,19 @@
-package com.example.wordquest.ui.screens.stats
+package com.example.wordquest.ui.model
 
 import com.example.wordquest.data.local.UserStatEntity
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-class StatsSummaryCalculatorTest {
+class ProgressSummaryCalculatorTest {
 
     @Test
     fun `empty history produces an empty summary`() {
-        val summary = StatsSummaryCalculator.calculate(
+        val summary = ProgressSummaryCalculator.calculate(
             stats = emptyList(),
             today = "2026-08-01"
         )
 
-        assertEquals(StatsSummary(), summary)
+        assertEquals(ProgressSummary(), summary)
     }
 
     @Test
@@ -39,7 +39,7 @@ class StatsSummaryCalculatorTest {
             )
         )
 
-        val summary = StatsSummaryCalculator.calculate(
+        val summary = ProgressSummaryCalculator.calculate(
             stats = statsNewestFirst,
             today = "2026-08-01"
         )
@@ -70,7 +70,7 @@ class StatsSummaryCalculatorTest {
             )
         )
 
-        val summary = StatsSummaryCalculator.calculate(
+        val summary = ProgressSummaryCalculator.calculate(
             stats = stats,
             today = "2026-08-01"
         )
