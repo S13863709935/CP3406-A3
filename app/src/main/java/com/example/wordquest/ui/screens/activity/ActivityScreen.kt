@@ -2,11 +2,15 @@ package com.example.wordquest.ui.screens.activity
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -29,7 +33,10 @@ fun ActivityScreen(
                 title = { Text("Word Quest") },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back"
+                        )
                     }
                 }
             )
@@ -44,7 +51,11 @@ fun ActivityScreen(
         ) {
             when {
                 uiState.isLoading -> {
-                    CircularProgressIndicator()
+                    CircularProgressIndicator(
+                        modifier = Modifier.semantics {
+                            contentDescription = "Loading word definition"
+                        }
+                    )
                 }
                 uiState.error != null -> {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -203,13 +214,23 @@ fun MultipleChoiceQuiz(
                 uiState.selectedOption != null && isCorrect -> MaterialTheme.colorScheme.primary
                 else -> MaterialTheme.colorScheme.surfaceVariant
             }
+            val contentColor = when (color) {
+                MaterialTheme.colorScheme.primary -> MaterialTheme.colorScheme.onPrimary
+                MaterialTheme.colorScheme.error -> MaterialTheme.colorScheme.onError
+                else -> MaterialTheme.colorScheme.onSurfaceVariant
+            }
 
             Button(
                 onClick = { viewModel.selectOption(option) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 4.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = color),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = color,
+                    contentColor = contentColor,
+                    disabledContainerColor = color,
+                    disabledContentColor = contentColor
+                ),
                 enabled = uiState.selectedOption == null
             ) {
                 Text(text = option)
@@ -218,6 +239,24 @@ fun MultipleChoiceQuiz(
 
         if (uiState.selectedOption != null) {
             Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = if (uiState.isAnswerCorrect == true) {
+                    "Correct!"
+                } else {
+                    "Not quite. The correct answer is ${word.word}."
+                },
+                color = if (uiState.isAnswerCorrect == true) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.error
+                },
+                fontWeight = FontWeight.SemiBold,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.semantics {
+                    liveRegion = LiveRegionMode.Polite
+                }
+            )
+            Spacer(modifier = Modifier.height(12.dp))
             Button(onClick = { viewModel.loadNextWord() }) {
                 Text("Next Word")
             }

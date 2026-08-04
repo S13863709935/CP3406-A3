@@ -3,6 +3,7 @@ package com.example.wordquest.ui.screens.landing
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.progressSemantics
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -174,6 +175,7 @@ private fun DailyProgressCard(uiState: LandingUiState) {
             LinearProgressIndicator(
                 progress = { progress.coerceIn(0f, 1f) },
                 modifier = Modifier
+                    .progressSemantics(progress.coerceIn(0f, 1f))
                     .fillMaxWidth()
                     .height(8.dp),
                 strokeCap = androidx.compose.ui.graphics.StrokeCap.Round
