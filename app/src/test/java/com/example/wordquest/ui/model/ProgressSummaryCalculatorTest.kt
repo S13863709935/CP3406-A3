@@ -81,4 +81,26 @@ class ProgressSummaryCalculatorTest {
         assertEquals(100, summary.bestAccuracy)
         assertEquals(listOf(100, 0), summary.recentAccuracies)
     }
+
+    @Test
+    fun `accuracy trend contains the seven newest sessions in chronological order`() {
+        val statsNewestFirst = (10 downTo 1).map { score ->
+            UserStatEntity(
+                id = score,
+                date = "2026-08-05 10:00",
+                score = score,
+                totalQuestions = 10
+            )
+        }
+
+        val summary = ProgressSummaryCalculator.calculate(
+            stats = statsNewestFirst,
+            today = "2026-08-05"
+        )
+
+        assertEquals(
+            listOf(40, 50, 60, 70, 80, 90, 100),
+            summary.recentAccuracies
+        )
+    }
 }

@@ -173,4 +173,35 @@ class ActivityViewModelTest {
             }
         )
     }
+
+    @Test
+    fun `missing definition displays a friendly error`() = runTest {
+        stubSettings(goal = 1)
+        coEvery { repository.getWordDefinition(any()) } returns Result.failure(
+            NoSuchElementException("missing definition")
+        )
+
+        viewModel = ActivityViewModel(repository, settingsManager)
+
+        assertEquals(
+            "No definition was found for this word.",
+            viewModel.uiState.error
+        )
+    }
+
+    @Test
+    fun `skipping every failed word does not save an empty result`() = runTest {
+        stubSettings(goal = 1)
+        coEvery { repository.getWordDefinition(any()) } returns Result.failure(
+            IllegalStateException("network unavailable")
+        )
+        viewModel = ActivityViewModel(repository, settingsManager)
+
+        viewModel.skipCurrentWord()
+        advanceUntilIdle()
+
+        assertTrue(viewModel.uiState.quizFinished)
+        assertEquals(0, viewModel.uiState.totalQuestions)
+        coVerify(exactly = 0) { repository.insertStat(any()) }
+    }
 }
