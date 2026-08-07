@@ -1,6 +1,6 @@
 # WordQuest
 
-WordQuest is an Android vocabulary-learning application built with Kotlin and Jetpack Compose. It retrieves English definitions from the Free Dictionary API, supports flashcard and multiple-choice study modes, and stores learning progress locally.
+WordQuest is an Android vocabulary-learning application designed for secondary school learners. It is built with Kotlin and Jetpack Compose, retrieves English definitions from the Free Dictionary API, supports flashcard and multiple-choice study modes, and stores learning progress locally.
 
 ## Features
 
